@@ -1,7 +1,6 @@
-FROM openjdk:8 AS build
-
 ARG VERSION
 
+FROM openjdk:8 AS build
 COPY . /app
 WORKDIR /app
 RUN ./sbt clean dist && unzip target/universal/kafka-manager-$VERSION.zip

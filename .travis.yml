@@ -1,9 +1,25 @@
 sudo: required
 
+branches:
+  only:
+  - master
+
 services:
   - docker
 
+cache:
+  directories:
+  - $HOME/.sbt/0.13/dependency
+  - $HOME/.sbt/boot/scala*
+  - $HOME/.sbt/launchers
+  - $HOME/.ivy2/cache
+
+env:
+  global:
+    - VERSION=$(sed -n 's/^version := "\(.*\)"$/\1/gp' build.sbt)
+
 before_install:
- - docker build --build-arg VERSION=$(sed -n 's/^version := "\(.*\)"$/\1/gp' build.sbt) -t taylord/kafka-manager .
- - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
- - docker push -t $(sed -n 's/^version := "\(.*\)"$/\1/gp' build.sbt) taylord/kafka-manager
+  - echo "Bulding version $VERSION"
+  - docker build --build-arg VERSION=$VERSION -t taylord/kafka-manager .
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker push -t $VERSION taylord/kafka-manager
