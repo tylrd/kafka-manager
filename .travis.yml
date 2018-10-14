@@ -1,4 +1,6 @@
 sudo: required
+language: scala
+jdk: oraclejdk8
 
 branches:
   only:
@@ -13,9 +15,13 @@ cache:
     - $HOME/.sbt/boot/scala*
     - $HOME/.sbt/launchers
     - $HOME/.ivy2/cache
+before_cache:
+  - find $HOME/.sbt -name "*.lock" -type f -delete
+  - find $HOME/.ivy2/cache -name "ivydata-*.properties" -type f -delete
 
 before_install:
   - export VERSION=$(sed -n 's/^version := "\(.*\)"$/\1/gp' build.sbt)
+  - ./sbt clean dist && unzip target/universal/kafka-manager-${VERSION}.zip
   - docker build --build-arg VERSION=$VERSION -t taylord/kafka-manager .
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker push -t $VERSION taylord/kafka-manager
