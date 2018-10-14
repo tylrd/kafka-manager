@@ -1,5 +1,4 @@
 sudo: required
-language: scala
 jdk: oraclejdk8
 
 branches:
@@ -21,7 +20,10 @@ before_cache:
 
 before_install:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  # - export VERSION=$(sed -n 's/^version := "\(.*\)"$/\1/gp' build.sbt)
-  # - ./sbt clean dist && unzip target/universal/kafka-manager-${VERSION}.zip
-  # - docker build --build-arg VERSION=$VERSION -t taylord/kafka-manager .
-  # - docker push -t $VERSION taylord/kafka-manager
+  - export VERSION=$(sed -n 's/^version := "\(.*\)"$/\1/gp' build.sbt)
+  - ./sbt clean dist && unzip target/universal/kafka-manager-${VERSION}.zip
+
+script:
+  - docker build --build-arg VERSION=$VERSION -t taylord/kafka-manager:$VERSION -t taylord/kafka-manager:latest .
+  - docker push taylord/kafka-manager:$VERSION
+  - docker push taylord/kafka-manager:latest
