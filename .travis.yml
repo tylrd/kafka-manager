@@ -1,19 +1,9 @@
-language: scala
-sudo: true
-jdk: oraclejdk8
-install: true
-script: travis_wait 30 ./sbt clean coverage assembly
-scala:
-  - 2.11.7
-#after_success:
-#  - sbt coverageReport coveralls
+sudo: required
 
-cache:
-  directories:
-  - $HOME/.sbt/0.13/dependency
-  - $HOME/.sbt/boot/scala*
-  - $HOME/.sbt/launchers
-  - $HOME/.ivy2/cache
-before_cache:
-  - find $HOME/.sbt -name "*.lock" -type f -delete
-  - find $HOME/.ivy2/cache -name "ivydata-*.properties" -type f -delete
+services:
+  - docker
+
+before_install:
+ - docker build --build-arg VERSION=$(sed -n 's/^version := "\(.*\)"$/\1/gp' build.sbt) -t taylord/kafka-manager .
+ - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+ - docker push -t $(sed -n 's/^version := "\(.*\)"$/\1/gp' build.sbt) taylord/kafka-manager
