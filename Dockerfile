@@ -4,4 +4,4 @@ RUN apk --update add bash
 
 ARG VERSION
 COPY kafka-manager-$VERSION /app
-ENTRYPOINT [ "/app/bin/kafka-manager" ]
+ENTRYPOINT [ "/app/bin/kafka-manager", "-Dpidfile.path=/dev/null" ]
